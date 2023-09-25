@@ -1,0 +1,48 @@
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-68J35F2R6N"></script>
+    <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){dataLayer.push(arguments);}
+     gtag('js', new Date());
+
+     gtag('config', 'G-68J35F2R6N');
+    </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playlist Heardle | ArjhanToteck</title>
+  <link href="/style.css" rel="stylesheet" type="text/css" media="all">
+  <link rel="icon" href="/favicon.png">
+</head>
+
+<h1 class="glitch" data-text="Playlist Heardle">Playlist Heardle</h1>
+
+<br>
+<br>
+
+<input id="playlistLink" placeholder="Playlist link">
+<br>
+<br>
+<button onclick="play()">Play</button>
+<br>
+<audio id="audio" controls>
+</audio>
+
+<script>
+	const server = "https://playlist-heardle.arjhantoteck.repl.co";
+
+	function play() {
+		let playlistId = playlistLink.value.split("playlist/")[1].split("?")[0];
+
+		console.log(server + "/playlist?" + playlistId)
+		fetch(server + "/playlist?" + playlistId)
+		.then(res => res.json())
+		.then(data => {
+			let audioUrl = server + "/callback?" + encodeURIComponent(data.callback);
+			let audioElement = document.getElementById("audio");
+			audioElement.src = audioUrl;
+			audioElement.play();
+		});
+	}
+</script>
