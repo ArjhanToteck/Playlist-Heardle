@@ -140,7 +140,10 @@ let server = http.createServer(function(req, res) {
 			gameData.callback = youtubeLink + ", " + req.connection.remoteAddress; // add ip to callback
 			
 			// sends game data to client with callback for audio file
-			res.setHeader('Content-Type', 'application/json');
+			res.writeHead(200, {
+				"Access-Control-Allow-Origin": "*",
+				'Content-Type': 'application/json'
+			});
 			res.end(JSON.stringify(gameData));
 
 			// starts to load video
