@@ -15,14 +15,14 @@ let server = http.createServer(function(req, res) {
 		// checks if trying to download playlist
 		if (req.url.substring(0, 10) == "/playlist?") {
 			// starts to download playlist
-			getPlaylistData(decodeURIComponent(req.url.split("/playlist?")[1]));
+			getRawSongData(decodeURIComponent(req.url.split("/playlist?")[1]));
 
 		} else {
 			throw (new Error());
-		}		
+		}
 
 		// gets song data from spotify playlist
-		function getPlaylistData(id) {
+		function getRawSongData(id) {
 			// stores songs
 			let tracks;
 
@@ -35,13 +35,13 @@ let server = http.createServer(function(req, res) {
 
 					// fetches first 100 songs
 					fetch(`https://api.spotify.com/v1/playlists/${id}`, {
-							"headers": {
-								"authorization": "Bearer " + token
-							},
-						})
+						"headers": {
+							"authorization": "Bearer " + token
+						},
+					})
 						.then((response) => response.json())
 						.then((data) => {
-							console.log(`\n\nStarted downloading playlist ${data.name} (https://open.spotify.com/playlist/${id}) at ${new Date().toLocaleString()}`)
+							console.log(`\n\nStarted loading playlist ${data.name} (https://open.spotify.com/playlist/${id}) at ${new Date().toLocaleString()}`)
 
 							// loads first 100 songs into tracks object
 							tracks = data.tracks.items;
@@ -55,10 +55,10 @@ let server = http.createServer(function(req, res) {
 								function fetchNext(next) {
 									// loads next 100 songs
 									fetch(next, {
-											"headers": {
-												"authorization": "Bearer " + token
-											},
-										})
+										"headers": {
+											"authorization": "Bearer " + token
+										},
+									})
 										.then((response) => response.json())
 										.then((newData) => {
 											// adds next 100 songs to array
@@ -69,21 +69,45 @@ let server = http.createServer(function(req, res) {
 												fetchNext(newData.next);
 											} else {
 												// if there are no more songs, starts choosing a song
-												data.tracks.items = tracks;
-												getSong(data);
+												formatSongData(tracks);
 											}
 										});
 								}
 							} else {
 								// if there are no more songs, starts choosing a song
-								getSong(data);
+								formatSongData(tracks);
 							}
 						});
 				});
 		}
 
-		function getSong(data){
-			console.log(data);
+		function formatSongData(rawTracks) {
+			formattedTracks = [];
+
+			// loop through tracks
+			for (i = 0; i < rawTracks.length; i++) {
+				let rawTrack = rawTracks[i].track;
+				
+				let artists = []
+
+				// loop through artists
+				for (j = 0; j < rawTrack.artists.length; j++) {
+					artists.push(rawTrack.artists[j].name);
+				}
+
+				// add current track in format
+				formattedTracks.push({
+					name: rawTrack.name,
+					artists: artists.join(", "),
+					url: rawTrack.external_urls.spotify
+				});
+			}
+
+			getSong(formattedTracks);
+		}
+
+		function getSong(tracks){
+			console.log(formattedTracks);
 		}
 
 	} catch (e) {
