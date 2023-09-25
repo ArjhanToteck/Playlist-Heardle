@@ -9,11 +9,15 @@ let downloadCallbacks = {};
 // opens http server
 let server = http.createServer(function(req, res) {
 
+	process.on('uncaughtException', function(err) {
+  	res.writeHead(200, {"Content-Type": "text/plain"});
+		res.end("Placeholder, lmao");
+	});
+
 	// holds date for the game
 	let gameData = {};
 
-	try {
-		// checks if trying to download playlist
+	// checks if trying to download playlist
 		if (req.url.substring(0, 10) == "/playlist?") {
 			// starts to download playlist
 			getRawSongData(decodeURIComponent(req.url.split("/playlist?")[1]));
@@ -177,13 +181,10 @@ let server = http.createServer(function(req, res) {
 			audio.on("end", () => {
 				console.log("done");
 				res.end();
+
+				delete downloadCallbacks[callbackId];
 			});
 		}
-
-	} catch (e) {
-		res.writeHead(200, {"Content-Type": "text/plain"});
-		res.end("Placeholder, lmao");
-	}
 });
 
 server.setTimeout(0);
