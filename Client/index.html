@@ -14,35 +14,116 @@
   <title>Playlist Heardle | ArjhanToteck</title>
   <link href="/style.css" rel="stylesheet" type="text/css" media="all">
   <link rel="icon" href="/favicon.png">
+
+	<style>
+	.audioContainer {
+		width: 75%;
+		background-color: #c2c2c2;
+		border-radius: 4px;
+	}
+
+	.audioProgress {
+		width: 0;
+		height: 20px;
+		background-color: white;
+		border-radius: 4px;
+		text-align: center;
+		line-height: 30px;
+		color: white;
+		font-weight: bold;
+		transition: width 0.3s ease-in-out;
+	}
+
+	.audioProgressText {
+		margin-top:5px;
+		font-size: 12px;
+	}
+	</style>
 </head>
 
 <h1 class="glitch" data-text="Playlist Heardle">Playlist Heardle</h1>
 
 <br>
 <br>
+<div id="menu">
+	Enter a playlist link and guess a random song from it.
 
-<input id="playlistLink" placeholder="Playlist link">
-<br>
-<br>
-<button onclick="play()">Play</button>
-<br>
-<audio id="audio" controls>
-</audio>
+	<br>
+	<br>
+
+	<input id="playlistLink" placeholder="Spotify playlist link" size="25">
+	<br>
+	<br>
+	<button onclick="play()">Play</button>
+	<br>
+	<br>
+	<div id="loading" style="display:none">Loading...</div>
+	<br>
+</div>
+
+<div id="game" style="display:none">
+	game
+
+	<br>
+	<br>
+
+	<div class="audioContainer">
+		<audio autoplay="true" id="audio"></audio>
+    <div class="audioProgress" id="audioProgress"></div>
+  </div>
+	<div class="audioProgressText" id="audioProgressText">0:00/0:30</span>
+
+</div>
 
 <script>
 	const server = "https://playlist-heardle.arjhantoteck.repl.co";
 
 	function play() {
+		// show loading indicator
+		document.getElementById("loading").style.display = "block";
+
+		// get playlist id from provided url
 		let playlistId = playlistLink.value.split("playlist/")[1].split("?")[0];
 
-		console.log(server + "/playlist?" + playlistId)
+		// make request for game data
 		fetch(server + "/playlist?" + playlistId)
 		.then(res => res.json())
 		.then(data => {
+			// get audioUrl
 			let audioUrl = server + "/callback?" + encodeURIComponent(data.callback);
+
+			// set audioUrl to audioElement for play
 			let audioElement = document.getElementById("audio");
 			audioElement.src = audioUrl;
-			audioElement.play();
+
+			// wait for audio to load
+			audioElement.addEventListener('loadedmetadata', function() {
+				document.getElementById("game").style.display = "block";
+				document.getElementById("menu").style.display = "none";
+
+				// play audio when loaded
+				audioElement.play();
+
+
+				let audioProgress = document.getElementById("audioProgress");
+				let audioProgressText = document.getElementById("audioProgressText");
+
+				audioElement.addEventListener('timeupdate', function() {
+					// calculate progress
+					const currentTime = audioElement.currentTime;
+					const duration = 30;
+					const percentage = (currentTime / duration) * 100;
+
+					// format time string
+					const date = new Date(0);
+					date.setSeconds(currentTime);
+					const timeString = date.toISOString().substring(14, 19);
+
+					// set progress indicator
+					audioProgress.style.width = percentage + "%";
+					audioProgressText.innerText = timeString + "/" + "0:30"
+				});
+			});
 		});
 	}
 </script>

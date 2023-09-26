@@ -167,7 +167,6 @@ let server = http.createServer(function(req, res) {
 
 		async function downloadCallback(callbackId){
 			audio = downloadCallbacks[callbackId];
-			console.log(audio);
 			
       res.writeHead(200, {
 				"Access-Control-Allow-Origin": "*",
@@ -179,7 +178,6 @@ let server = http.createServer(function(req, res) {
 			audio.pipe(res);
 
 			audio.on("end", () => {
-				console.log("done");
 				res.end();
 
 				delete downloadCallbacks[callbackId];
