@@ -61,7 +61,7 @@
 	<input id="playlistLink" placeholder="Spotify playlist link" size="30">
 	<br>
 	<br>
-	<button id="playButton" onclick="play()">Play</button>
+	<button id="playButton" onclick="startGame()">Play</button>
 	<br>
 	<br>
 	<div id="loading" style="display:none">Loading...</div>
@@ -69,8 +69,9 @@
 </div>
 
 <div id="game" style="display:none">
-	game
+	Try guessing the song from the first few seconds. Skip forward if you can't get it yet.
 
+	<br>
 	<br>
 	<br>
 
@@ -82,14 +83,49 @@
 	</div>
 	<div class="audioProgressText" id="audioProgressText">0:00/0:30</div>
 
+	<br>
+
+	<button style="height: 50px; width: 50px" onclick="play()" id="playButton">
+		<svg style="width: 40px; transform: translate(-3px, 2px);" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+			<style type="text/css">
+				.st0{fill-rule:evenodd;clip-rule:evenodd;fill:black;}
+			</style>
+			<path class="st0" d="M50,5.021c24.841,0,44.979,20.138,44.979,44.979S74.841,94.979,50,94.979C25.159,94.979,5.021,74.841,5.021,50  C5.021,25.159,25.159,5.021,50,5.021L50,5.021z M43.788,29.466c-2.222-1.906-5.711-0.338-5.711,2.627v35.814h0.013  c-0.003,2.729,3.156,4.455,5.461,2.797l24.857-17.868c1.918-1.351,2.021-4.219,0.055-5.634L43.788,29.466L43.788,29.466z M60.543,50  L44.996,38.825v22.35L60.543,50L60.543,50z M76.912,23.088c-14.863-14.863-38.961-14.863-53.824,0  c-14.862,14.862-14.863,38.961,0,53.824c14.863,14.863,38.962,14.863,53.824,0C91.775,62.049,91.775,37.951,76.912,23.088z"/>
+		</svg>
+	</button>
+
+	<button style="height: 50px; width: 50px" onclick="skip()" id="skipButton">
+		<svg style="width: 40px; transform: translate(-3px, 2px);" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+			<style type="text/css">
+				.st0{fill-rule:evenodd;clip-rule:evenodd;fill:black;}
+			</style>
+			<path class="st0" d="M50,5.021c24.841,0,44.979,20.138,44.979,44.979S74.841,94.979,50,94.979C25.159,94.979,5.021,74.841,5.021,50  C5.021,25.159,25.16,5.021,50,5.021L50,5.021z M57.018,33.616c-2.208-1.983-5.771-0.426-5.771,2.574v8.896L36.807,33.616  c-2.448-2.068-5.77-0.249-5.77,2.574v27.618h0.007c-0.001,2.805,3.313,4.522,5.602,2.703l14.603-11.599v8.896h0.007  c-0.001,2.805,3.313,4.522,5.602,2.703l17.336-13.77c1.749-1.365,1.826-4.033,0.049-5.445L57.018,33.616L57.018,33.616z M66.541,50  l-8.374-6.651v13.303L66.541,50L66.541,50z M46.33,50l-8.374-6.651v13.303L46.33,50L46.33,50z M76.912,23.088  c-14.863-14.863-38.961-14.863-53.824,0c-14.862,14.862-14.863,38.961,0,53.824c14.863,14.863,38.962,14.863,53.824,0  C91.775,62.049,91.775,37.951,76.912,23.088z"/>
+		</svg>
+	</button>
+	<br>
+	<br>
+	<input id="songGuess" placeholder="Guess the song name/artist" size="45">
 </div>
 
 <script>
 	const server = "https://playlist-heardle.arjhantoteck.repl.co";
 
+	// segments to split song into
 	const segments = [1, 2, 4, 7, 11, 16];
 
-	function play() {
+	// dom references
+	const audioElement = document.getElementById("audio");
+	const audioProgress = document.getElementById("audioProgress");
+	const audioSegment = document.getElementById("audioSegment");
+	const audioProgressText = document.getElementById("audioProgressText");
+	const audioContainer = document.getElementById("audioContainer");
+	const skipButton = document.getElementById("skipButton");
+
+	// max time is 30 seconds, limit starts at 1
+	const duration = segments[segments.length - 1];
+	let currentLimitIndex = 0;
+
+	function startGame() {
 		let playlistLink = document.getElementById("playlistLink");
 		let playButton = document.getElementById("playButton");
 		playlistLink.disabled = true;
@@ -109,7 +145,6 @@
 			let audioUrl = server + "/callback?" + encodeURIComponent(data.callback);
 
 			// set audioUrl to audioElement for play
-			let audioElement = document.getElementById("audio");
 			audioElement.src = audioUrl;
 
 			// wait for audio to load
@@ -120,35 +155,23 @@
 				// play audio when loaded
 				audioElement.play();
 
-				let audioProgress = document.getElementById("audioProgress");
-				let audioSegment = document.getElementById("audioSegment");
-				let audioProgressText = document.getElementById("audioProgressText");
 
-				// max time is 30 seconds, limit starts at 1
-				const duration = segments[segments.length - 1];
-				let currentLimit = segments[0];
 				setAudioSegment();
 
-				function setAudioSegment(){
-					let percentage = (currentLimit / duration) * 100;
-					audioSegment.style.width = percentage + "%";
-				}
 
 				audioElement.addEventListener('timeupdate', function() {
 					// calculate progress
 					let currentTime = audioElement.currentTime;
-					let containerWidth = document.getElementById("audioContainer").offsetWidth;
 
-					if (currentTime >= currentLimit) {
+					if (currentTime >= segments[currentLimitIndex]) {
 						audioElement.pause();
-						currentTime = currentLimit;
-						console.log("pause time");
+						currentTime = segments[currentLimitIndex];
 					}
 
 					let percentage = (currentTime / duration) * 100;
 
 					// calculate width relative to audioContainer
-					let progressWidth = (percentage / 100) * containerWidth;
+					let progressWidth = (percentage / 100) * audioContainer.offsetWidth;
 
 					// set progress indicator
 					audioProgress.style.width = progressWidth + "px";
@@ -156,6 +179,27 @@
 				});
 			});
 		});
+	}
+
+	function play(){
+		audioElement.currentTime = 0;
+		audioElement.play();
+	}
+
+	function skip(){
+		currentLimitIndex++;
+		setAudioSegment();
+		audioElement.currentTime = 0;
+		audioElement.play();
+
+		if(currentLimitIndex == segments.length - 1){
+			skipButton.disabled = true;
+		}
+	}
+
+	function setAudioSegment(){
+		let percentage = (segments[currentLimitIndex] / duration) * 100;
+		audioSegment.style.width = percentage + "%";
 	}
 
 	function formatTimeString(time){
