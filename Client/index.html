@@ -45,6 +45,12 @@
 			margin-top:5px;
 			font-size: 12px;
 		}
+
+		.highlight {
+			background-color: white;
+			color: #262626;
+			border-radius: 5px;
+		}
 	</style>
 </head>
 
@@ -58,7 +64,7 @@
 	<br>
 	<br>
 
-	<input id="playlistLink" placeholder="Spotify playlist link" size="30">
+	<input autocomplete="off" id="playlistLink" placeholder="Spotify playlist link" size="30">
 	<br>
 	<br>
 	<button id="playButton" onclick="startGame()">Play</button>
@@ -81,7 +87,7 @@
 			<div class="audioProgress" id="audioProgress"></div>
 		</div>
 	</div>
-	<div class="audioProgressText" id="audioProgressText">0:00/0:30</div>
+	<div class="audioProgressText" id="audioProgressText">0:00/0:16</div>
 
 	<br>
 
@@ -104,7 +110,13 @@
 	</button>
 	<br>
 	<br>
-	<input id="songGuess" placeholder="Guess the song name/artist" size="45">
+	<input autocomplete="off" id="songGuess" placeholder="Guess the song name/artist" size="45" oninput="searchSongs(this.value)">
+	<button>Guess</button>
+	<br>
+	<div id="searchResults" style="display: none;">
+		<ul id="resultsList"></ul>
+	</div>
+
 </div>
 
 <script>
@@ -120,6 +132,9 @@
 	const audioProgressText = document.getElementById("audioProgressText");
 	const audioContainer = document.getElementById("audioContainer");
 	const skipButton = document.getElementById("skipButton");
+	const searchResults = document.getElementById("searchResults");
+	const resultsList = document.getElementById("resultsList");
+
 
 	// max time is 30 seconds, limit starts at 1
 	const duration = segments[segments.length - 1];
@@ -217,4 +232,46 @@
 		date.setSeconds(time);
 		return date.toISOString().substring(14, 19);
 	}
+
+	function searchSongs(query) {
+		const keywords = query.toLowerCase().split(' ');
+
+		const results = filterSongs(keywords);
+
+		// clears previous results
+		resultsList.innerHTML = "";
+
+		// display results
+		if (results.length > 0) {
+			results.forEach((result) => {
+				const listItem = document.createElement("li");
+				const highlightedResult = highlightMatchingKeywords(result, keywords);
+				listItem.innerHTML = highlightedResult;
+				resultsList.appendChild(listItem);
+			});
+
+			// display dropdown
+			searchResults.style.display = "block";
+		} else {
+			// hide dropdown
+			searchResults.style.display = "none";
+		}
+	}
+
+	function filterSongs(keywords) {
+		return tracks.filter((song) => {
+			const lowercaseSong = song.toLowerCase();
+			return keywords.some((keyword) => lowercaseSong.includes(keyword));
+		});
+	}
+
+	function highlightMatchingKeywords(text, keywords) {
+		const lowercasedText = text.toLowerCase();
+		for (const keyword of keywords) {
+			const regExp = new RegExp(keyword, 'gi'); // 'gi' for global and case-insensitive match
+			text = text.replace(regExp, (match) => `<span class="highlight">${match}</span>`);
+		}
+		return text;
+	}
+
 </script>
