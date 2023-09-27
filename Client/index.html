@@ -125,6 +125,9 @@
 	const duration = segments[segments.length - 1];
 	let currentLimitIndex = 0;
 
+	let tracks;
+	let answerIndex;
+
 	function startGame() {
 		let playlistLink = document.getElementById("playlistLink");
 		let playButton = document.getElementById("playButton");
@@ -141,6 +144,12 @@
 		fetch(server + "/playlist?" + playlistId)
 			.then(res => res.json())
 			.then(data => {
+			tracks = data.tracks.map(function(track){
+				return track.name + " by " + track.artists;
+			});
+
+			answerIndex = data.answerIndex;
+
 			// get audioUrl
 			let audioUrl = server + "/callback?" + encodeURIComponent(data.callback);
 
