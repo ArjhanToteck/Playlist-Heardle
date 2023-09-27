@@ -234,18 +234,26 @@
 	}
 
 	function searchSongs(query) {
-		const keywords = query.toLowerCase().split(' ');
+		// remove by and split query into keywords. also remove empty ones
+		const keywords = query.toLowerCase().split(' ').filter(word => !!word).sort((a, b) => b.length - a.length);;
 
 		const results = filterSongs(keywords);
 
-		// clears previous results
+		// calculates relevance score and sort the results
+		results.sort((a, b) => {
+			const relevanceA = calculateRelevanceScore(a.toLowerCase(), keywords);
+			const relevanceB = calculateRelevanceScore(b.toLowerCase(), keywords);
+			return relevanceB - relevanceA;
+		});
+
+		// clear previous results
 		resultsList.innerHTML = "";
 
 		// display results
 		if (results.length > 0) {
 			results.forEach((result) => {
-				const listItem = document.createElement("li");
 				const highlightedResult = highlightMatchingKeywords(result, keywords);
+				const listItem = document.createElement("li");
 				listItem.innerHTML = highlightedResult;
 				resultsList.appendChild(listItem);
 			});
@@ -259,19 +267,46 @@
 	}
 
 	function filterSongs(keywords) {
-		return tracks.filter((song) => {
-			const lowercaseSong = song.toLowerCase();
-			return keywords.some((keyword) => lowercaseSong.includes(keyword));
+		// filter the tracks based on the keywords
+		return tracks.filter(track => {
+			const trackLower = track.toLowerCase();
+			return keywords.every(keyword => trackLower.includes(keyword));
 		});
+	}
+
+
+	function calculateRelevanceScore(text, keywords) {
+		// calculate and return a relevance score based on the number of keyword matches
+		let score = 0;
+		for (const keyword of keywords) {
+			if (text.includes(keyword)) {
+				score++;
+			}
+		}
+		return score;
 	}
 
 	function highlightMatchingKeywords(text, keywords) {
 		const lowercasedText = text.toLowerCase();
 		for (const keyword of keywords) {
-			const regExp = new RegExp(keyword, 'gi'); // 'gi' for global and case-insensitive match
-			text = text.replace(regExp, (match) => `<span class="highlight">${match}</span>`);
+			const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // escape special characters
+			if (keyword.length > 1) {
+				const regExp = new RegExp(`\\b${escapedKeyword}`, 'gi'); // use \\b to match whole words
+				text = text.replace(regExp, (match) => `<span class="highlight">${match}</span>`);
+			} else {
+				const keywordRegex = new RegExp(escapedKeyword, 'gi');
+				const matches = text.match(keywordRegex);
+				if (matches) {
+					matches.forEach((match) => {
+						text = text.replace(match, `<span class="highlight">${match}</span>`);
+					});
+				}
+			}
 		}
 		return text;
 	}
+
+
+
 
 </script>
