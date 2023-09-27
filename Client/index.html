@@ -1,43 +1,50 @@
 <head>
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-68J35F2R6N"></script>
-    <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-68J35F2R6N"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
 
-     gtag('config', 'G-68J35F2R6N');
-    </script>
+		gtag('config', 'G-68J35F2R6N');
+	</script>
 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Playlist Heardle | ArjhanToteck</title>
-  <link href="/style.css" rel="stylesheet" type="text/css" media="all">
-  <link rel="icon" href="/favicon.png">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Playlist Heardle | ArjhanToteck</title>
+	<link href="/style.css" rel="stylesheet" type="text/css" media="all">
+	<link rel="icon" href="/favicon.png">
 
 	<style>
-	.audioContainer {
-		width: 75%;
-		background-color: #c2c2c2;
-		border-radius: 4px;
-	}
+		.audioContainer {
+			width: 75%;
+			background-color: gray;
+			border-radius: 4px;
+		}
 
-	.audioProgress {
-		width: 0;
-		height: 20px;
-		background-color: white;
-		border-radius: 4px;
-		text-align: center;
-		line-height: 30px;
-		color: white;
-		font-weight: bold;
-		transition: width 0.3s ease-in-out;
-	}
+		.audioProgress, .audioSegment {
+			width: 0px;
+			height: 20px;
+			border-radius: 4px;
+			text-align: center;
+			line-height: 30px;
+			font-weight: bold;
+			transition: width 0.3s ease-in-out;
+		}
 
-	.audioProgressText {
-		margin-top:5px;
-		font-size: 12px;
-	}
+		.audioProgress {
+			position: absolute;
+			background-color: white;
+		}
+
+		.audioSegment {
+			background-color: #c2c2c2;
+		}
+
+		.audioProgressText {
+			margin-top:5px;
+			font-size: 12px;
+		}
 	</style>
 </head>
 
@@ -51,10 +58,10 @@
 	<br>
 	<br>
 
-	<input id="playlistLink" placeholder="Spotify playlist link" size="25">
+	<input id="playlistLink" placeholder="Spotify playlist link" size="30">
 	<br>
 	<br>
-	<button onclick="play()">Play</button>
+	<button id="playButton" onclick="play()">Play</button>
 	<br>
 	<br>
 	<div id="loading" style="display:none">Loading...</div>
@@ -67,18 +74,27 @@
 	<br>
 	<br>
 
-	<div class="audioContainer">
+	<div class="audioContainer" id="audioContainer">
 		<audio autoplay="true" id="audio"></audio>
-    <div class="audioProgress" id="audioProgress"></div>
-  </div>
-	<div class="audioProgressText" id="audioProgressText">0:00/0:30</span>
+		<div class="audioSegment" id="audioSegment">
+			<div class="audioProgress" id="audioProgress"></div>
+		</div>
+	</div>
+	<div class="audioProgressText" id="audioProgressText">0:00/0:30</div>
 
 </div>
 
 <script>
 	const server = "https://playlist-heardle.arjhantoteck.repl.co";
 
+	const segments = [1, 2, 4, 7, 11, 16];
+
 	function play() {
+		let playlistLink = document.getElementById("playlistLink");
+		let playButton = document.getElementById("playButton");
+		playlistLink.disabled = true;
+		playButton.disabled = true;
+
 		// show loading indicator
 		document.getElementById("loading").style.display = "block";
 
@@ -87,8 +103,8 @@
 
 		// make request for game data
 		fetch(server + "/playlist?" + playlistId)
-		.then(res => res.json())
-		.then(data => {
+			.then(res => res.json())
+			.then(data => {
 			// get audioUrl
 			let audioUrl = server + "/callback?" + encodeURIComponent(data.callback);
 
@@ -104,26 +120,48 @@
 				// play audio when loaded
 				audioElement.play();
 
-
 				let audioProgress = document.getElementById("audioProgress");
+				let audioSegment = document.getElementById("audioSegment");
 				let audioProgressText = document.getElementById("audioProgressText");
+
+				// max time is 30 seconds, limit starts at 1
+				const duration = segments[segments.length - 1];
+				let currentLimit = segments[0];
+				setAudioSegment();
+
+				function setAudioSegment(){
+					let percentage = (currentLimit / duration) * 100;
+					audioSegment.style.width = percentage + "%";
+				}
 
 				audioElement.addEventListener('timeupdate', function() {
 					// calculate progress
-					const currentTime = audioElement.currentTime;
-					const duration = 30;
-					const percentage = (currentTime / duration) * 100;
+					let currentTime = audioElement.currentTime;
+					let containerWidth = document.getElementById("audioContainer").offsetWidth;
 
-					// format time string
-					const date = new Date(0);
-					date.setSeconds(currentTime);
-					const timeString = date.toISOString().substring(14, 19);
+					if (currentTime >= currentLimit) {
+						audioElement.pause();
+						currentTime = currentLimit;
+						console.log("pause time");
+					}
+
+					let percentage = (currentTime / duration) * 100;
+
+					// calculate width relative to audioContainer
+					let progressWidth = (percentage / 100) * containerWidth;
 
 					// set progress indicator
-					audioProgress.style.width = percentage + "%";
-					audioProgressText.innerText = timeString + "/" + "0:30"
+					audioProgress.style.width = progressWidth + "px";
+					audioProgressText.innerText = formatTimeString(currentTime) + "/" + formatTimeString(duration);
 				});
 			});
 		});
+	}
+
+	function formatTimeString(time){
+		// format time string
+		const date = new Date(0);
+		date.setSeconds(time);
+		return date.toISOString().substring(14, 19);
 	}
 </script>
