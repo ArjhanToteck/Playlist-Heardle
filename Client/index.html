@@ -79,7 +79,7 @@
 </div>
 
 <div id="game" style="display:none">
-	Try guessing the song from the first few seconds. Skip forward if you can't get it yet.
+	<span id="message">Try guessing the song from the first few seconds. Skip forward if you can't get it yet.</span>
 
 	<br>
 	<br>
@@ -123,7 +123,7 @@
 	<br>
 	<br>
 	<input autocomplete="off" id="songGuess" placeholder="Guess the song name/artist" size="45" oninput="searchSongs()">
-	<button disabled="true" id="guessButton">Guess</button>
+	<button disabled="true" id="guessButton" onclick="submitGuess()">Guess</button>
 	<br>
 	<br>
 
@@ -150,10 +150,11 @@
 	const guessButton = document.getElementById("guessButton");
 	const searchResults = document.getElementById("searchResults");
 	const resultsList = document.getElementById("resultsList");
+	const message = document.getElementById("message");
 
 	// max time is 30 seconds, limit starts at 1
 	const duration = segments[segments.length - 1];
-	let currentLimitIndex = 0;
+	let numberOfSkips = 0;
 
 	let tracks;
 	let answerIndex;
@@ -200,9 +201,9 @@
 					// calculate progress
 					let currentTime = audioElement.currentTime;
 
-					if (currentTime >= segments[currentLimitIndex]) {
+					if (currentTime >= segments[numberOfSkips]) {
 						audioElement.pause();
-						currentTime = segments[currentLimitIndex];
+						currentTime = segments[numberOfSkips];
 					}
 
 					let percentage = (currentTime / duration) * 100;
@@ -224,18 +225,18 @@
 	}
 
 	function skip() {
-		currentLimitIndex++;
+		numberOfSkips++;
 		setAudioSegment();
 		audioElement.currentTime = 0;
 		audioElement.play();
 
-		if (currentLimitIndex == segments.length - 1) {
+		if (numberOfSkips == segments.length - 1) {
 			skipButton.disabled = true;
 		}
 	}
 
 	function setAudioSegment() {
-		let percentage = (segments[currentLimitIndex] / duration) * 100;
+		let percentage = (segments[numberOfSkips] / duration) * 100;
 		audioSegment.style.width = percentage + "%";
 	}
 
@@ -320,5 +321,18 @@
 		});
 	}
 
+	function submitGuess(){
+		if(songGuess.value == tracks[answerIndex]){
+			alert("you win bbg!");
+		} else {
+			// check if still has guesses left
+			if(numberOfSkips < segments.length - 1){
+				message.innerText = "Not quite. Try again.";
+				skip()
+			} else {
+				message.innerText = "Game over.";
+			}
+		}
+	}
 
 </script>
