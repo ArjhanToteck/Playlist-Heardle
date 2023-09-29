@@ -3,7 +3,10 @@
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-68J35F2R6N"></script>
 	<script>
 		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
+
+		function gtag() {
+			dataLayer.push(arguments);
+		}
 		gtag('js', new Date());
 
 		gtag('config', 'G-68J35F2R6N');
@@ -22,7 +25,8 @@
 			border-radius: 4px;
 		}
 
-		.audioProgress, .audioSegment {
+		.audioProgress,
+		.audioSegment {
 			width: 0px;
 			height: 20px;
 			border-radius: 4px;
@@ -42,7 +46,7 @@
 		}
 
 		.audioProgressText {
-			margin-top:5px;
+			margin-top: 5px;
 			font-size: 12px;
 		}
 
@@ -94,18 +98,26 @@
 	<button style="height: 50px; width: 50px" onclick="play()" id="playButton">
 		<svg style="width: 40px; transform: translate(-3px, 2px);" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" style="enable-background:new 0 0 100 100;" xml:space="preserve">
 			<style type="text/css">
-				.st0{fill-rule:evenodd;clip-rule:evenodd;fill:black;}
+				.st0 {
+					fill-rule: evenodd;
+					clip-rule: evenodd;
+					fill: black;
+				}
 			</style>
-			<path class="st0" d="M50,5.021c24.841,0,44.979,20.138,44.979,44.979S74.841,94.979,50,94.979C25.159,94.979,5.021,74.841,5.021,50  C5.021,25.159,25.159,5.021,50,5.021L50,5.021z M43.788,29.466c-2.222-1.906-5.711-0.338-5.711,2.627v35.814h0.013  c-0.003,2.729,3.156,4.455,5.461,2.797l24.857-17.868c1.918-1.351,2.021-4.219,0.055-5.634L43.788,29.466L43.788,29.466z M60.543,50  L44.996,38.825v22.35L60.543,50L60.543,50z M76.912,23.088c-14.863-14.863-38.961-14.863-53.824,0  c-14.862,14.862-14.863,38.961,0,53.824c14.863,14.863,38.962,14.863,53.824,0C91.775,62.049,91.775,37.951,76.912,23.088z"/>
+			<path class="st0" d="M50,5.021c24.841,0,44.979,20.138,44.979,44.979S74.841,94.979,50,94.979C25.159,94.979,5.021,74.841,5.021,50  C5.021,25.159,25.159,5.021,50,5.021L50,5.021z M43.788,29.466c-2.222-1.906-5.711-0.338-5.711,2.627v35.814h0.013  c-0.003,2.729,3.156,4.455,5.461,2.797l24.857-17.868c1.918-1.351,2.021-4.219,0.055-5.634L43.788,29.466L43.788,29.466z M60.543,50  L44.996,38.825v22.35L60.543,50L60.543,50z M76.912,23.088c-14.863-14.863-38.961-14.863-53.824,0  c-14.862,14.862-14.863,38.961,0,53.824c14.863,14.863,38.962,14.863,53.824,0C91.775,62.049,91.775,37.951,76.912,23.088z" />
 		</svg>
 	</button>
 
 	<button style="height: 50px; width: 50px" onclick="skip()" id="skipButton">
 		<svg style="width: 40px; transform: translate(-3px, 2px);" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" style="enable-background:new 0 0 100 100;" xml:space="preserve">
 			<style type="text/css">
-				.st0{fill-rule:evenodd;clip-rule:evenodd;fill:black;}
+				.st0 {
+					fill-rule: evenodd;
+					clip-rule: evenodd;
+					fill: black;
+				}
 			</style>
-			<path class="st0" d="M50,5.021c24.841,0,44.979,20.138,44.979,44.979S74.841,94.979,50,94.979C25.159,94.979,5.021,74.841,5.021,50  C5.021,25.159,25.16,5.021,50,5.021L50,5.021z M57.018,33.616c-2.208-1.983-5.771-0.426-5.771,2.574v8.896L36.807,33.616  c-2.448-2.068-5.77-0.249-5.77,2.574v27.618h0.007c-0.001,2.805,3.313,4.522,5.602,2.703l14.603-11.599v8.896h0.007  c-0.001,2.805,3.313,4.522,5.602,2.703l17.336-13.77c1.749-1.365,1.826-4.033,0.049-5.445L57.018,33.616L57.018,33.616z M66.541,50  l-8.374-6.651v13.303L66.541,50L66.541,50z M46.33,50l-8.374-6.651v13.303L46.33,50L46.33,50z M76.912,23.088  c-14.863-14.863-38.961-14.863-53.824,0c-14.862,14.862-14.863,38.961,0,53.824c14.863,14.863,38.962,14.863,53.824,0  C91.775,62.049,91.775,37.951,76.912,23.088z"/>
+			<path class="st0" d="M50,5.021c24.841,0,44.979,20.138,44.979,44.979S74.841,94.979,50,94.979C25.159,94.979,5.021,74.841,5.021,50  C5.021,25.159,25.16,5.021,50,5.021L50,5.021z M57.018,33.616c-2.208-1.983-5.771-0.426-5.771,2.574v8.896L36.807,33.616  c-2.448-2.068-5.77-0.249-5.77,2.574v27.618h0.007c-0.001,2.805,3.313,4.522,5.602,2.703l14.603-11.599v8.896h0.007  c-0.001,2.805,3.313,4.522,5.602,2.703l17.336-13.77c1.749-1.365,1.826-4.033,0.049-5.445L57.018,33.616L57.018,33.616z M66.541,50  l-8.374-6.651v13.303L66.541,50L66.541,50z M46.33,50l-8.374-6.651v13.303L46.33,50L46.33,50z M76.912,23.088  c-14.863-14.863-38.961-14.863-53.824,0c-14.862,14.862-14.863,38.961,0,53.824c14.863,14.863,38.962,14.863,53.824,0  C91.775,62.049,91.775,37.951,76.912,23.088z" />
 		</svg>
 	</button>
 	<br>
@@ -135,7 +147,6 @@
 	const searchResults = document.getElementById("searchResults");
 	const resultsList = document.getElementById("resultsList");
 
-
 	// max time is 30 seconds, limit starts at 1
 	const duration = segments[segments.length - 1];
 	let currentLimitIndex = 0;
@@ -159,7 +170,7 @@
 		fetch(server + "/playlist?" + playlistId)
 			.then(res => res.json())
 			.then(data => {
-			tracks = data.tracks.map(function(track){
+			tracks = data.tracks.map(function(track) {
 				return track.name + " by " + track.artists;
 			});
 
@@ -179,9 +190,7 @@
 				// play audio when loaded
 				audioElement.play();
 
-
 				setAudioSegment();
-
 
 				audioElement.addEventListener('timeupdate', function() {
 					// calculate progress
@@ -205,108 +214,89 @@
 		});
 	}
 
-	function play(){
+	function play() {
 		audioElement.currentTime = 0;
 		audioElement.play();
 	}
 
-	function skip(){
+	function skip() {
 		currentLimitIndex++;
 		setAudioSegment();
 		audioElement.currentTime = 0;
 		audioElement.play();
 
-		if(currentLimitIndex == segments.length - 1){
+		if (currentLimitIndex == segments.length - 1) {
 			skipButton.disabled = true;
 		}
 	}
 
-	function setAudioSegment(){
+	function setAudioSegment() {
 		let percentage = (segments[currentLimitIndex] / duration) * 100;
 		audioSegment.style.width = percentage + "%";
 	}
 
-	function formatTimeString(time){
+	function formatTimeString(time) {
 		// format time string
 		const date = new Date(0);
 		date.setSeconds(time);
 		return date.toISOString().substring(14, 19);
 	}
 
-	function searchSongs(query) {
-		// remove by and split query into keywords. also remove empty ones
-		const keywords = query.toLowerCase().split(' ').filter(word => !!word).sort((a, b) => b.length - a.length);;
+function searchSongs(query) {
+  // lowercase query and split into keywords
+  const keywords = query.toLowerCase().split(' ').filter(word => word);
 
-		const results = filterSongs(keywords);
+  // filters search
+  const results = filterSongs(keywords);
 
-		// calculates relevance score and sort the results
-		results.sort((a, b) => {
-			const relevanceA = calculateRelevanceScore(a.toLowerCase(), keywords);
-			const relevanceB = calculateRelevanceScore(b.toLowerCase(), keywords);
-			return relevanceB - relevanceA;
-		});
+  // clears results
+  resultsList.innerHTML = "";
 
-		// clear previous results
-		resultsList.innerHTML = "";
+  // displays results
+  if (results.length > 0) {
+    results.forEach((result) => {
+      const listItem = document.createElement("li");
+      listItem.innerHTML = result.highlightedText;
+      resultsList.appendChild(listItem);
+    });
 
-		// display results
-		if (results.length > 0) {
-			results.forEach((result) => {
-				const highlightedResult = highlightMatchingKeywords(result, keywords);
-				const listItem = document.createElement("li");
-				listItem.innerHTML = highlightedResult;
-				resultsList.appendChild(listItem);
-			});
+    // display dropdown
+    searchResults.style.display = "block";
+  } else {
+    // hide dropdown
+    searchResults.style.display = "none";
+  }
+}
 
-			// display dropdown
-			searchResults.style.display = "block";
-		} else {
-			// hide dropdown
-			searchResults.style.display = "none";
-		}
-	}
+function filterSongs(keywords) {
+  const results = [];
 
-	function filterSongs(keywords) {
-		// filter the tracks based on the keywords
-		return tracks.filter(track => {
-			const trackLower = track.toLowerCase();
-			return keywords.every(keyword => trackLower.includes(keyword));
-		});
-	}
+  tracks.forEach((track) => {
+    const trackLower = track.toLowerCase();
 
+    // checks if all keywords match
+    if (keywords.every(keyword => trackLower.includes(keyword))) {
+      results.push({ track, highlightedText: highlightKeywords(track, keywords) });
+    }
+  });
 
-	function calculateRelevanceScore(text, keywords) {
-		// calculate and return a relevance score based on the number of keyword matches
-		let score = 0;
-		for (const keyword of keywords) {
-			if (text.includes(keyword)) {
-				score++;
-			}
-		}
-		return score;
-	}
+  return results;
+}
 
-	function highlightMatchingKeywords(text, keywords) {
-		const lowercasedText = text.toLowerCase();
-		for (const keyword of keywords) {
-			const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // escape special characters
-			if (keyword.length > 1) {
-				const regExp = new RegExp(`\\b${escapedKeyword}`, 'gi'); // use \\b to match whole words
-				text = text.replace(regExp, (match) => `<span class="highlight">${match}</span>`);
-			} else {
-				const keywordRegex = new RegExp(escapedKeyword, 'gi');
-				const matches = text.match(keywordRegex);
-				if (matches) {
-					matches.forEach((match) => {
-						text = text.replace(match, `<span class="highlight">${match}</span>`);
-					});
-				}
-			}
-		}
-		return text;
-	}
+function highlightKeywords(text, keywords) {
+  // make sure only words outside of html tags are highlighted
+  const keywordRegex = new RegExp(`([^>]*>)?(${keywords.map((string) => {return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}).join('|')})(?![^<]*<)`, 'gi');
 
-
+  return text.replace(keywordRegex, (match, htmlTag, keyword) => {
+    if (htmlTag) {
+      // return match without highlighting if it's a tag or if it's already highlighted
+      return `${htmlTag}${keyword}`;
+    } else {
+      // highlight the word if it matches the regex
+      return `<span class="highlight">${match}</span>`;
+    }
+  });
+}
 
 
 </script>
