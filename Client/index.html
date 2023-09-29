@@ -68,7 +68,7 @@
 	<br>
 	<br>
 
-	<input autocomplete="off" id="playlistLink" placeholder="Spotify playlist link" size="30">
+	<input autocomplete="off" id="playlistLink" placeholder="Spotify playlist link" size="45">
 	<br>
 	<br>
 	<button id="playButton" onclick="startGame()">Play</button>
@@ -122,9 +122,11 @@
 	</button>
 	<br>
 	<br>
-	<input autocomplete="off" id="songGuess" placeholder="Guess the song name/artist" size="45" oninput="searchSongs(this.value)">
-	<button>Guess</button>
+	<input autocomplete="off" id="songGuess" placeholder="Guess the song name/artist" size="45" oninput="searchSongs()">
+	<button disabled="true" id="guessButton">Guess</button>
 	<br>
+	<br>
+
 	<div id="searchResults" style="display: none;">
 		<ul id="resultsList"></ul>
 	</div>
@@ -144,6 +146,8 @@
 	const audioProgressText = document.getElementById("audioProgressText");
 	const audioContainer = document.getElementById("audioContainer");
 	const skipButton = document.getElementById("skipButton");
+	const songGuess = document.getElementById("songGuess");
+	const guessButton = document.getElementById("guessButton");
 	const searchResults = document.getElementById("searchResults");
 	const resultsList = document.getElementById("resultsList");
 
@@ -242,61 +246,79 @@
 		return date.toISOString().substring(14, 19);
 	}
 
-function searchSongs(query) {
-  // lowercase query and split into keywords
-  const keywords = query.toLowerCase().split(' ').filter(word => word);
+	function searchSongs() {
+		let query = songGuess.value;
 
-  // filters search
-  const results = filterSongs(keywords);
+		guessButton.disabled = true
 
-  // clears results
-  resultsList.innerHTML = "";
+		// check if search matches an actual song
+		for(let i = 0; i < tracks.length; i++){
+			if(tracks[i] == query){
+				// enable guess button
+				guessButton.disabled = false;
+				break;
+			}
+		}
 
-  // displays results
-  if (results.length > 0) {
-    results.forEach((result) => {
-      const listItem = document.createElement("li");
-      listItem.innerHTML = result.highlightedText;
-      resultsList.appendChild(listItem);
-    });
+		// lowercase query and split into keywords from longest to shortest
+		const keywords = query.toLowerCase().split(' ').filter(word => word).sort((a, b) => b.length - a.length);
 
-    // display dropdown
-    searchResults.style.display = "block";
-  } else {
-    // hide dropdown
-    searchResults.style.display = "none";
-  }
-}
+		// filters search
+		const results = filterSongs(keywords);
 
-function filterSongs(keywords) {
-  const results = [];
+		// clears results
+		resultsList.innerHTML = "";
 
-  tracks.forEach((track) => {
-    const trackLower = track.toLowerCase();
+		// displays results
+		if (results.length > 0) {
+			results.forEach((result) => {
+				const listItem = document.createElement("li");
+				listItem.innerHTML = `<a>${result.highlightedText}</a>`;
+				resultsList.appendChild(listItem);
 
-    // checks if all keywords match
-    if (keywords.every(keyword => trackLower.includes(keyword))) {
-      results.push({ track, highlightedText: highlightKeywords(track, keywords) });
-    }
-  });
+				listItem.onclick = function(){
+					songGuess.value = result.name;
+					searchSongs();
+				}
+			});
 
-  return results;
-}
+			// display dropdown
+			searchResults.style.display = "block";
+		} else {
+			// hide dropdown
+			searchResults.style.display = "none";
+		}
+	}
 
-function highlightKeywords(text, keywords) {
-  // make sure only words outside of html tags are highlighted
-  const keywordRegex = new RegExp(`([^>]*>)?(${keywords.map((string) => {return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}).join('|')})(?![^<]*<)`, 'gi');
+	function filterSongs(keywords) {
+		const results = [];
 
-  return text.replace(keywordRegex, (match, htmlTag, keyword) => {
-    if (htmlTag) {
-      // return match without highlighting if it's a tag or if it's already highlighted
-      return `${htmlTag}${keyword}`;
-    } else {
-      // highlight the word if it matches the regex
-      return `<span class="highlight">${match}</span>`;
-    }
-  });
-}
+		tracks.forEach((track) => {
+			const trackLower = track.toLowerCase();
+
+			// checks if all keywords match
+			if (keywords.every(keyword => trackLower.includes(keyword))) {
+				results.push({ name: track, highlightedText: highlightKeywords(track, keywords) });
+			}
+		});
+
+		return results;
+	}
+
+	function highlightKeywords(text, keywords) {
+		// make sure only words outside of html tags are highlighted
+		const keywordRegex = new RegExp(`([^>]*>)?(${keywords.map((string) => {return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}).join('|')})(?![^<]*<)`, 'gi');
+
+		return text.replace(keywordRegex, (match, htmlTag, keyword) => {
+			if (htmlTag) {
+				// return match without highlighting if it's a tag or if it's already highlighted
+				return `${htmlTag}${keyword}`;
+			} else {
+				// highlight the word if it matches the regex
+				return `<span class="highlight">${match}</span>`;
+			}
+		});
+	}
 
 
 </script>
