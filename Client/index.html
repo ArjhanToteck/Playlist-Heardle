@@ -133,6 +133,20 @@
 
 </div>
 
+<div id="gameOver" style="display:none">
+	<span id="gameOverMessage">You guessed the song correctly!</span>
+
+	<br>
+	<br>
+
+	<button onclick="location.reload()">Play Again</button>
+
+	<br>
+	<br>
+
+	<iframe id="spotifyEmbed" style="border-radius:12px" src="https://open.spotify.com/embed/track/2tznHmp70DxMyr2XhWLOW0" width="50%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+</div>
+
 <script>
 	const server = "https://playlist-heardle.arjhantoteck.repl.co";
 
@@ -151,6 +165,9 @@
 	const searchResults = document.getElementById("searchResults");
 	const resultsList = document.getElementById("resultsList");
 	const message = document.getElementById("message");
+	const gameOver = document.getElementById("gameOver");
+	const gameOverMessage = document.getElementById("gameOverMessage");
+	const spotifyEmbed = document.getElementById("spotifyEmbed");
 
 	// max time is 30 seconds, limit starts at 1
 	const duration = segments[segments.length - 1];
@@ -158,6 +175,7 @@
 
 	let tracks;
 	let answerIndex;
+	let answerId;
 
 	function startGame() {
 		let playlistLink = document.getElementById("playlistLink");
@@ -175,48 +193,52 @@
 		fetch(server + "/playlist?" + playlistId)
 			.then(res => res.json())
 			.then(data => {
-			tracks = data.tracks.map(function(track) {
-				return track.name + " by " + track.artists;
-			});
 
-			answerIndex = data.answerIndex;
+				tracks = data.tracks.map(function(track) {
+					return track.name + " by " + track.artists;
+				});
 
-			// get audioUrl
-			let audioUrl = server + "/callback?" + encodeURIComponent(data.callback);
+				answerIndex = data.answerIndex;
 
-			// set audioUrl to audioElement for play
-			audioElement.src = audioUrl;
+				answerId = data.tracks[answerIndex].url.split("/");
+				answerId = answerId[answerId.length - 1];
 
-			// wait for audio to load
-			audioElement.addEventListener('loadedmetadata', function() {
-				document.getElementById("game").style.display = "block";
-				document.getElementById("menu").style.display = "none";
+				// get audioUrl
+				let audioUrl = server + "/callback?" + encodeURIComponent(data.callback);
 
-				// play audio when loaded
-				audioElement.play();
+				// set audioUrl to audioElement for play
+				audioElement.src = audioUrl;
 
-				setAudioSegment();
+				// wait for audio to load
+				audioElement.addEventListener('loadedmetadata', function() {
+					document.getElementById("game").style.display = "block";
+					document.getElementById("menu").style.display = "none";
 
-				audioElement.addEventListener('timeupdate', function() {
-					// calculate progress
-					let currentTime = audioElement.currentTime;
+					// play audio when loaded
+					audioElement.play();
 
-					if (currentTime >= segments[numberOfSkips]) {
-						audioElement.pause();
-						currentTime = segments[numberOfSkips];
+					setAudioSegment();
+
+					audioElement.ontimeupdate = function() {
+						// calculate progress
+						let currentTime = audioElement.currentTime;
+
+						if (currentTime >= segments[numberOfSkips]) {
+							audioElement.pause();
+							currentTime = segments[numberOfSkips];
+						}
+
+						let percentage = (currentTime / duration) * 100;
+
+						// calculate width relative to audioContainer
+						let progressWidth = (percentage / 100) * audioContainer.offsetWidth;
+
+						// set progress indicator
+						audioProgress.style.width = progressWidth + "px";
+						audioProgressText.innerText = formatTimeString(currentTime) + "/" + formatTimeString(duration);
 					}
-
-					let percentage = (currentTime / duration) * 100;
-
-					// calculate width relative to audioContainer
-					let progressWidth = (percentage / 100) * audioContainer.offsetWidth;
-
-					// set progress indicator
-					audioProgress.style.width = progressWidth + "px";
-					audioProgressText.innerText = formatTimeString(currentTime) + "/" + formatTimeString(duration);
 				});
 			});
-		});
 	}
 
 	function play() {
@@ -253,8 +275,8 @@
 		guessButton.disabled = true
 
 		// check if search matches an actual song
-		for(let i = 0; i < tracks.length; i++){
-			if(tracks[i] == query){
+		for (let i = 0; i < tracks.length; i++) {
+			if (tracks[i] == query) {
 				// enable guess button
 				guessButton.disabled = false;
 				break;
@@ -277,7 +299,7 @@
 				listItem.innerHTML = `<a>${result.highlightedText}</a>`;
 				resultsList.appendChild(listItem);
 
-				listItem.onclick = function(){
+				listItem.onclick = function() {
 					songGuess.value = result.name;
 					searchSongs();
 				}
@@ -299,7 +321,10 @@
 
 			// checks if all keywords match
 			if (keywords.every(keyword => trackLower.includes(keyword))) {
-				results.push({ name: track, highlightedText: highlightKeywords(track, keywords) });
+				results.push({
+					name: track,
+					highlightedText: highlightKeywords(track, keywords)
+				});
 			}
 		});
 
@@ -321,18 +346,29 @@
 		});
 	}
 
-	function submitGuess(){
-		if(songGuess.value == tracks[answerIndex]){
-			alert("you win bbg!");
+	function submitGuess() {
+		if (songGuess.value == tracks[answerIndex]) {
+			endGame("You guessed the song correctly!");
 		} else {
 			// check if still has guesses left
-			if(numberOfSkips < segments.length - 1){
+			if (numberOfSkips < segments.length - 1) {
 				message.innerText = "Not quite. Try again.";
-				skip()
+				skip();
 			} else {
-				message.innerText = "Game over.";
+				endGame("You didn't get this one. Better luck next time.");
 			}
 		}
 	}
 
+	function endGame(message) {
+		game.style.display = "none";
+		gameOver.style.display = "block";
+		gameOverMessage.innerText = message;
+		spotifyEmbed.src = "https://open.spotify.com/embed/track/" + answerId;
+
+		// start playing song
+		audioElement.ontimeupdate = undefined;
+		audioElement.currentTime = 0;
+		audioElement.play();
+	}
 </script>
