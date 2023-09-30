@@ -132,7 +132,7 @@ let server = http.createServer(function(req, res) {
 
 		async function sendSong(song) {
 			// query = name + artists + "audio"
-			let query = song.name + " " + song.artists + " audio";
+			let query = song.name + " by " + song.artists + " song audio";
 
 			// searches query on youtube
 			let videos = await ytSearch.search(query);
