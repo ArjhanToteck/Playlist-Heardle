@@ -5,7 +5,7 @@ import LoadingBar from "@/src/components/LoadingBar";
 import { useRef, useState } from "react";
 
 // segments to split the song into
-const segments = [1, 2, 4, 7, 11, 16];
+const segments = [1, 2, 4, 8, 12];
 
 export default function Page() {
 	const [page, setPage] = useState("home");
@@ -50,7 +50,7 @@ export default function Page() {
 				page == "game" &&
 				<section>
 
-					<GameInstructions />
+					<p>Try guessing the song from the first {getSecondsDescription()} of the preview. Skip forward if you can't get it yet.</p>
 
 					<br />
 					<br />
@@ -83,16 +83,62 @@ export default function Page() {
 
 				</section>
 			}
-		</main>
+
+			{
+				// win page
+				page == "win" &&
+				<section>
+
+					<p>You won! You guessed the song correctly after hearing {getSecondsDescription()}.</p>
+
+					<p>The song was {songData.current.title} by {songData.current.subtitle}.</p>
+
+					<br />
+
+					<SpotifyEmbed songId={songData.current?.uri.split("track:")[1]} />
+
+					<br />
+					<br />
+
+					<button onClick={() => { location.reload() }}>Play Again</button>
+
+				</section>
+			}
+
+			{
+				// lose page
+				page == "lose" &&
+				<section>
+
+					<p>You lost. The song was {songData.current.title} by {songData.current.subtitle}.</p>
+
+					<br />
+
+					<SpotifyEmbed songId={songData.current?.uri.split("track:")[1]} />
+
+					<br />
+					<br />
+
+					<button onClick={() => { location.reload() }}>Play Again</button>
+
+				</section>
+			}
+		</main >
 	);
 
-	function GameInstructions() {
+	function SpotifyEmbed({ songId }) {
+		return (
+			<iframe src={"https://open.spotify.com/embed/track/" + songId} allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" height="352" style={{ border: 0 }}></iframe>
+		)
+	}
+
+	function getSecondsDescription() {
 		const audioLimit = segments[segmentIndex.current];
 
 		// plural ending for second/seconds
 		const pluralEnding = segments[segmentIndex.current] == 1 ? "" : "s";
 
-		return <p>Try guessing the song from the first {audioLimit} second{pluralEnding} of the preview. Skip forward if you can't get it yet.</p>;
+		return audioLimit + " second" + pluralEnding;
 	}
 
 	async function startGame() {
@@ -125,15 +171,19 @@ export default function Page() {
 			segmentIndex.current++;
 
 			play();
+		} else {
+			setPage("lose");
 		}
 	}
 
 	function sendGuess() {
+		// TODO: have this done in the back end
+		// the issue is it breaks the unicode encoding for some reason
 		const realSong = songData.current.title + " by " + songData.current.subtitle;
 
 		// TODO: actual end game
 		if (guess.current == realSong) {
-			alert("hip hip hooray");
+			setPage("win");
 		} else {
 			skip();
 		}

@@ -21,7 +21,7 @@ export default async function transliterateToEgyptian(req, res) {
 		const randomSong = rawTracks[Math.floor(Math.random() * rawTracks.length)];
 
 		// format track list
-		const trackList = rawTracks.map(track => track.title + " by " + track.subtitle);
+		const trackList = rawTracks.map(getTrackName);
 
 		// send output
 		res.setHeader("Content-Type", "application/json;");
@@ -30,7 +30,11 @@ export default async function transliterateToEgyptian(req, res) {
 		console.log(error);
 		// send output
 		res.setHeader("Content-Type", "text/plain;");
-		res.status(500).send(error.message);
+		res.status(500).json(error.message);
 	}
 
+}
+
+function getTrackName(track) {
+	return track.title + " by " + track.subtitle;
 }
